@@ -1,0 +1,206 @@
+from rest_framework.parsers import FileUploadParser
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import FileSerializer,PosicionSerializer,EmpresaSerializer, GetUserCompany
+from reportlab.pdfgen import canvas
+from PyPDF2 import PdfFileReader,PdfFileWriter
+from django.contrib.auth.models import User
+from django.contrib import auth
+from rest_framework.response import Response
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
+import json 
+
+class FileUploadView(APIView):
+    permission_classes = [IsAuthenticated,]
+    parser_class = (FileUploadParser,)
+
+    def post (self, request, *args, **kwargs):
+      file_serializer = FileSerializer(data=request.data)
+      if file_serializer.is_valid():
+          file_serializer.save()
+          print(file_serializer.data)
+          return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+      else:
+          return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ 
+
+class UserRegistrationView(APIView):
+   
+    permission_classes = [IsAuthenticated,]
+
+    def post(self,request, *args, **kwargs):
+            Request_Data = request.data
+            Dict_Data_To_Json = json.dumps(Request_Data)
+            Load_Json_Data = json.loads(Dict_Data_To_Json)
+            nombre = Load_Json_Data['Name']
+            password = Load_Json_Data['Pass']
+            email = Load_Json_Data['Email']
+            username = Load_Json_Data['User']
+            apellido = Load_Json_Data['Apellido']    
+            isactive = False
+            if User.objects.filter(username=username).exists():
+               return Response('190',status=status.HTTP_409_CONFLICT)
+            else:
+                usernew = User.objects.create_user(
+                    username = username,
+                    email = email,
+                    password = password,
+                    first_name = nombre,
+                    last_name= apellido,
+                    is_active = isactive
+                )
+                return Response(status=status.HTTP_201_CREATED)
+           
+
+class FileSend(APIView):
+
+    permission_classes = [IsAuthenticated,]
+   
+    def post(self,request, *args, **kwargs):
+        Request_Data = request.data
+        Dict_Data_To_Json = json.dumps(Request_Data)
+        Load_Json_Data = json.loads(Dict_Data_To_Json)
+        useridjson= Load_Json_Data['usuario']
+        posicionlogo = Load_Json_Data['posicion']
+        urlfile = Load_Json_Data['url']
+        SizeLogo = Load_Json_Data['size']
+        posicion_serializer = PosicionSerializer(data=request.data)
+          
+        if posicion_serializer.is_valid():
+            posicion_serializer.save()
+            idulast = PosicionSerializer.idurllast(urlfile)
+            filepdfini = 'fileini' + str(idulast) + '.pdf'
+            filepdfiniruta = './media/'+ filepdfini
+            logo = canvas.Canvas(filepdfiniruta)
+            logofile = PosicionSerializer.getlogourl(useridjson)
+            logfilecp = '.' + logofile
+            if posicionlogo == 'derecha':
+                if SizeLogo == 'grande':
+                    logo.drawImage(logfilecp, 380, 700, 260, 110,preserveAspectRatio=True)
+                    logo.save()
+                if SizeLogo == 'medio':
+                    logo.drawImage(logfilecp, 380, 710, 230, 80,preserveAspectRatio=True)
+                    logo.save()
+                if SizeLogo == 'peque':
+                    logo.drawImage(logfilecp, 380, 710, 180, 40,preserveAspectRatio=True)
+                    logo.save()
+            elif posicionlogo  == 'izquierda':
+                if SizeLogo == 'grande':
+                    logo.drawImage(logfilecp, 29, 710, 260, 110,preserveAspectRatio=True)
+                    logo.save()
+                if SizeLogo == 'medio':
+                    logo.drawImage(logfilecp, 29, 710, 220, 70,preserveAspectRatio=True)
+                    logo.save()
+                if SizeLogo == 'peque':
+                    logo.drawImage(logfilecp, 29, 710, 180, 40,preserveAspectRatio=True)
+                    logo.save()
+            logopdf = PdfFileReader(open(filepdfiniruta,"rb"))
+            fsatandlogo = PdfFileWriter()
+            '''ETDJ = En tiempo de ejecucion.'''
+            Str_File_Name_ETDJ = "." + str(urlfile)
+            fsatpdf = PdfFileReader(open(Str_File_Name_ETDJ,"rb"))
+            cantidad_pag = fsatpdf.getNumPages()
+
+            for num_pagina in range(cantidad_pag):
+                fsatpdf_page = fsatpdf.getPage(num_pagina)
+                fsatpdf_page.mergePage(logopdf.getPage(0))
+                fsatandlogo.addPage(fsatpdf_page)
+
+            filepdffin = 'filefin' + str(idulast) + '.pdf'
+            filepdffinruta = './media/'+ filepdffin
+
+            with open(filepdffinruta,"wb") as outputStream:
+                fsatandlogo.write(outputStream)
+                file_fact_url = "/media/"+filepdffin 
+            
+            return Response(file_fact_url, status=status.HTTP_200_OK)
+        
+        else:
+
+            return Response(posicion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserLoginView(APIView):
+
+    def post(self,request, *args, **kwargs):
+        if request.method == 'POST':
+            Request_Data = request.data
+            Dict_Data_To_Json = json.dumps(Request_Data)
+            Load_Json_Data = json.loads(Dict_Data_To_Json)
+            user = auth.authenticate(
+            username= Load_Json_Data['username'],
+            password = Load_Json_Data['password'])
+
+            if user is not None:
+                auth.login(request,user)
+                id_usuario = request.user.id
+                UserResponse = {'userId': id_usuario}
+                
+                return Response(UserResponse,
+                    status=200,
+                    content_type='application/json')
+            else:
+                
+                return Response('1900',status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class UserLogoutView(APIView):
+
+    def post(self,request, *args, **kwargs):
+        if request.method == 'POST':
+            Request_Data = request.data
+            Dict_Data_To_Json = json.dumps(Request_Data)
+            Load_Json_Data = json.loads(Dict_Data_To_Json)
+            username = Load_Json_Data['username']
+            if username is not None:
+                auth.logout(request,username)
+                UserLogout = {'Logout': 'Exitoso'}
+                return Response(UserLogout,
+                    status=200,
+                    content_type='application/json')
+            else:
+                return Response('1900',status=status.HTTP_400_BAD_REQUEST)
+
+
+        
+        else:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+#CODIGO NUEVO
+
+class CompanyRegistrationView(APIView): 
+
+    permission_classes = [IsAuthenticated,]
+    parser_class = (FileUploadParser,)
+
+    def post(self,request, *args, **kwargs):
+
+        company_serializer = EmpresaSerializer(data = request.data)
+        if company_serializer.is_valid():
+            company_serializer.save()
+            return Response(company_serializer.data,status=status.HTTP_201_CREATED)
+        else:
+            return Response(company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GUC(APIView): 
+
+ 
+    def get(self, request, *args, **kwargs):
+
+        if request.method == 'GET':
+            data = request.data
+            iduid=request.POST['uid']
+            guc_serializer = GetUserCompany.getuc(iduid)
+            data = json.loads(guc_serializer)
+            for key, value in data[0].items():
+                print(key+":"+str(value))
+            json_string = json.dumps(guc_serializer)
+
+        return Response(guc_serializer)
