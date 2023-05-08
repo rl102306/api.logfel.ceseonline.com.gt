@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'corsheaders'
 ]
 
+ALLOWED_HOSTS = ['api.logfel.ceseonline.com.gt','localhost', '127.0.0.1']
+
 CORS_ALLOWED_ORIGINS = ['http://localhost:4200', 'https://logfel.ceseonline.com.gt','http://logfel.ceseonline.com.gt']
 
 CORS_ALLOW_METHODS = [
@@ -168,7 +170,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'static'
+#STATIC_ROOT = 'static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
