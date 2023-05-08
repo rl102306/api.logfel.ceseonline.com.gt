@@ -326,7 +326,7 @@ class Existe_Suscripcion_Usuario(APIView):
             }
             return Response(Json_Suscripcion_Existe,status=200,content_type="application/json")
         else:
-            return Response("Error",status=400,content_type="text/plain")
+            return Response(Json_Suscripcion_Existe,status=400,content_type="application/json")
 
 class SuscripcionRegistrationView(APIView): 
     def post(self,request, *args, **kwargs):
