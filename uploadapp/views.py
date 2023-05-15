@@ -1,6 +1,7 @@
 import base64
 import sqlite3
 from urllib import response
+from django.shortcuts import redirect
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework import status
@@ -333,18 +334,21 @@ class EBIExitosoView(APIView):
     def post(self,request, *args, **kwargs):
         
         data = request.data
-        
-        return Response(data, status = status.HTTP_201_CREATED)
+
+        return redirect('https://logfel.ceseonline.com.gt/pex')
+        #return Response(data, status = status.HTTP_201_CREATED)
         #else:
             #return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EBIRechazoView(APIView): 
-    
+
     def post(self,request, *args, **kwargs):
 
         data = request.data
-        
-        return Response(data, status = status.HTTP_400_BAD_REQUEST)
+
+        return redirect('https://logfel.ceseonline.com.gt/pre')
+    
+        #return Response(data, status = status.HTTP_400_BAD_REQUEST)
     
     '''    suscripcion_serializer = SuscripcionSerializer(data = request.data)
         if suscripcion_serializer.is_valid():
