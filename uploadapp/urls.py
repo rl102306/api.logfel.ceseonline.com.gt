@@ -10,7 +10,7 @@ urlpatterns = [
     path('company/post',CompanyRegistrationView.as_view()),
     path('user/post',UserRegistrationView.as_view()),
     path('guc/get',GUC.as_view()),
-    path('token/auth', obtain_auth_token),
+    #path('token/auth', obtain_auth_token),
     path('codigoqr', CodigoQR.as_view()),
     path('login_ebi', LoginEbiPay.as_view(),),
     path('cod_red_social_ebi',CodRedSocialEbiPay.as_view(),),
