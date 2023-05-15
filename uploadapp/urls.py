@@ -18,6 +18,8 @@ urlpatterns = [
     path('empresa_existe/post',PerfilEmpresaUsuario.as_view()),
     path('suscripcion_existe',Existe_Suscripcion_Usuario.as_view()),
     path('registrar_suscripcion',SuscripcionRegistrationView.as_view()),
+    path('ebi_exitoso', EBIExitosoView.as_view()),
+    path('ebi_rechazo', EBIRechazoView.as_view()),
     path('crear_perfil',CPUsuarioEmpresa.as_view()),
     path('estado_suscripcion',Estado_Suscripcion.as_view()),
     path('historia_suscripcion',Historia_Suscripcion.as_view()),

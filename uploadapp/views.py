@@ -328,6 +328,32 @@ class Existe_Suscripcion_Usuario(APIView):
         else:
             return Response(Json_Suscripcion_Existe,status=400,content_type="application/json")
 
+class EBIExitosoView(APIView): 
+    
+    def post(self,request, *args, **kwargs):
+        
+        data = request.data
+        
+        return Response(data, status = status.HTTP_201_CREATED)
+        #else:
+            #return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class EBIRechazoView(APIView): 
+    
+    def post(self,request, *args, **kwargs):
+
+        data = request.data
+        
+        return Response(data, status = status.HTTP_400_BAD_REQUEST)
+    
+    '''    suscripcion_serializer = SuscripcionSerializer(data = request.data)
+        if suscripcion_serializer.is_valid():
+            suscripcion_serializer.save()
+            return Response(suscripcion_serializer.data,status=status.HTTP_201_CREATED)
+        else:
+            return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    '''
+
 class SuscripcionRegistrationView(APIView): 
     def post(self,request, *args, **kwargs):
         suscripcion_serializer = SuscripcionSerializer(data = request.data)
@@ -336,6 +362,7 @@ class SuscripcionRegistrationView(APIView):
             return Response(suscripcion_serializer.data,status=status.HTTP_201_CREATED)
         else:
             return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CPUsuarioEmpresa(APIView):
     def post(self,request, *args, **kwargs):
