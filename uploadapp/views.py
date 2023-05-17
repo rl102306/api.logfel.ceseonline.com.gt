@@ -342,11 +342,14 @@ class EBIExitosoView(APIView):
 }'''
     def post(self,request, *args, **kwargs):
         
-        
+        data = request.data
+
+        print(data)
+
+        Response(data)    
         #return redirect('https://logfel.ceseonline.com.gt/pex')
 
-        try:
-            data = request.data
+        '''try:
             unpad = lambda s : s[:-s[-1]]
             key = binascii.unhexlify('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')
             encrypted = json.loads(base64.b64decode(data).decode('ascii'))
@@ -357,12 +360,16 @@ class EBIExitosoView(APIView):
             clean = unpad(decrypted).decode('ascii').rstrip()
 
             print(decrypted)
-            Response(decrypted)
+            print(data)
+            Response(data)
         except Exception as e:
             print("Cannot decrypt datas...")
             print(e)
+            print('DATA RESULTADO')
+            print(data)
             exit(1)
-        return clean
+        return Response(data)
+        '''
         #return Response(data, status = status.HTTP_201_CREATED)
         #else:
             #return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
