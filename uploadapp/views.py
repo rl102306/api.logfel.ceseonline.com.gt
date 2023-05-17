@@ -1,18 +1,19 @@
 import base64
+import binascii
 import sqlite3
 from urllib import response
 from django.shortcuts import redirect
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework import status
-
+from Crypto.Cipher import AES
 from uploadapp.models import Empresa
 from .serializers import FileSerializer,PosicionSerializer,EmpresaSerializer, GetUserCompany,ProfileSeriaizer, SuscripcionSerializer,HistoriaSuscripcionSerializer
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader,PdfFileWriter
 from django.contrib.auth.models import User
 from django.contrib import auth
-from rest_framework.response import Response
+# from rest_framework.response import Response
 from reportlab.lib.units import inch
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -330,12 +331,38 @@ class Existe_Suscripcion_Usuario(APIView):
             return Response(Json_Suscripcion_Existe,status=400,content_type="application/json")
 
 class EBIExitosoView(APIView): 
-    
+    ''' function my_decrypt($data, $passphrase) {
+    $secret_key = hex2bin($passphrase);
+    $json = json_decode(base64_decode($data));
+    $iv = base64_decode($json->{'iv'});
+    $encrypted_64 = $json->{'data'};
+    $data_encrypted = base64_decode($encrypted_64);
+    $decrypted = openssl_decrypt($data_encrypted, 'aes-256-cbc', $secret_key, OPENSSL_RAW_DATA, $iv);
+    return $decrypted;
+}'''
     def post(self,request, *args, **kwargs):
         
-        data = request.data
+        
+        #return redirect('https://logfel.ceseonline.com.gt/pex')
 
-        return redirect('https://logfel.ceseonline.com.gt/pex')
+        try:
+            data = request.data
+            unpad = lambda s : s[:-s[-1]]
+            key = binascii.unhexlify('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')
+            encrypted = json.loads(base64.b64decode(data).decode('ascii'))
+            encrypted_data = base64.b64decode(encrypted['data'])
+            iv = base64.b64decode('ziwVz5mWmPp7qse7s1Uy/A==')
+            cipher = AES.new(key, AES.MODE_CBC, iv)
+            decrypted = cipher.decrypt(encrypted_data)
+            clean = unpad(decrypted).decode('ascii').rstrip()
+
+            print(decrypted)
+            Response(decrypted)
+        except Exception as e:
+            print("Cannot decrypt datas...")
+            print(e)
+            exit(1)
+        return clean
         #return Response(data, status = status.HTTP_201_CREATED)
         #else:
             #return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
