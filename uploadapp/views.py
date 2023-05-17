@@ -341,12 +341,14 @@ class EBIExitosoView(APIView):
     return $decrypted;
 }'''
     def post(self,request, *args, **kwargs):
-        
-        data = request.data
+        print("INGRESO 1")
+        Request_Data = request.data
+        Dict_Data_To_Json = json.dumps(Request_Data)
+        Load_Json_Data = json.loads(Dict_Data_To_Json)
+        print(Dict_Data_To_Json)
+        print(Load_Json_Data)
 
-        print(data)
-
-        Response(data)    
+        Response(Load_Json_Data)    
         #return redirect('https://logfel.ceseonline.com.gt/pex')
 
         '''try:
