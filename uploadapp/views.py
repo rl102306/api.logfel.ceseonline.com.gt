@@ -375,7 +375,7 @@ class EBIExitosoView(APIView):
         #return Response(data, status = status.HTTP_201_CREATED)
         #else:
             #return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        '''
 class EBIRechazoView(APIView): 
 
     def post(self,request, *args, **kwargs):
