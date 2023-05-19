@@ -349,6 +349,8 @@ class EBIExitosoView(APIView):
         Load_Json_Data = json.loads(Dict_Data_To_Json)
         
         Token = Load_Json_Data['token']
+
+        Autoriza = Load_Json_Data['authorization']
             
             
         #return redirect('https://logfel.ceseonline.com.gt/pex')
@@ -356,8 +358,8 @@ class EBIExitosoView(APIView):
         try:
             unpad = lambda s : s[:-s[-1]]
             key = binascii.unhexlify('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')
-            encrypted = json.loads(base64.b64decode(Token).decode('ascii'))
-            encrypted_data = base64.b64decode(encrypted['Token'])
+            encrypted = json.loads(base64.b64decode(Autoriza).decode('ascii'))
+            encrypted_data = base64.b64decode(encrypted['Autoriza'])
             iv = base64.b64decode('ziwVz5mWmPp7qse7s1Uy/A==')
             cipher = AES.new(key, AES.MODE_CBC, iv)
             decrypted = cipher.decrypt(encrypted_data)
