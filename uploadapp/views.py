@@ -1,12 +1,10 @@
 import base64
-import binascii
 import sqlite3
 from urllib import response
 from django.shortcuts import redirect
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework import status
-from Crypto.Cipher import AES
 from uploadapp.models import Empresa
 from .serializers import FileSerializer,PosicionSerializer,EmpresaSerializer, GetUserCompany,ProfileSeriaizer, SuscripcionSerializer,HistoriaSuscripcionSerializer
 from reportlab.pdfgen import canvas
@@ -20,6 +18,9 @@ from rest_framework.views import APIView
 import qrcode
 import json
 import requests
+from Crypto.Cipher import AES
+
+
 
 class FileUploadView(APIView):
     permission_classes = [IsAuthenticated,]
@@ -330,17 +331,38 @@ class Existe_Suscripcion_Usuario(APIView):
         else:
             return Response(Json_Suscripcion_Existe,status=400,content_type="application/json")
 
-class EBIExitosoView(APIView): 
-    ''' function my_decrypt($data, $passphrase) {
-    $secret_key = hex2bin($passphrase);
-    $json = json_decode(base64_decode($data));
-    $iv = base64_decode($json->{'iv'});
-    $encrypted_64 = $json->{'data'};
-    $data_encrypted = base64_decode($encrypted_64);
-    $decrypted = openssl_decrypt($data_encrypted, 'aes-256-cbc', $secret_key, OPENSSL_RAW_DATA, $iv);
-    return $decrypted;
-}'''
+class EBIExitosoView(APIView):
+
+  
+ 
+ 
     def post(self,request, *args, **kwargs):
+
+        def decrypt(value, method, key, iv):
+        
+            cipher = AES.new(key, AES.MODE_CBC, iv)
+        
+            decrypted = cipher.decrypt(base64.b64decode(value))
+        
+            return decrypted.decode()
+
+        request = {}  # Se asume que request es un diccionario vacío en Python
+        authorization = request['authorization']
+        amount = request['amount']
+        code = request['code']
+        audit = request['audit']
+        reference = request['reference']
+        token = request['token']
+
+        method = 'aes-256-cbc'
+        key = b'1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93'
+        iv = base64.b64decode("ziwVz5mWmPp7qse7s1Uy/A==")
+
+        print("Autorización:", decrypt(authorization, method, key, iv))
+        print("Monto:", decrypt(amount, method, key, iv))
+        print("Codigo:", code)
+        print("Audit:", decrypt(audit, method, key, iv))
+        print("Referencia:", decrypt(reference, method, key, iv))
         
         Request_Data = request.data
         
@@ -351,28 +373,15 @@ class EBIExitosoView(APIView):
         Token = Load_Json_Data['token']
 
         Autoriza = Load_Json_Data['authorization']
-            
+
+        return Response(decrypt(authorization, method, key, iv), status = status.HTTP_201_CREATED)
+
+        
+
+
             
         #return redirect('https://logfel.ceseonline.com.gt/pex')
 
-        try:
-            unpad = lambda s : s[:-s[-1]]
-            key = binascii.unhexlify('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')
-            encrypted = json.loads(base64.b64decode(Autoriza).decode('ascii'))
-            encrypted_data = base64.b64decode(encrypted['Autoriza'])
-            iv = base64.b64decode('ziwVz5mWmPp7qse7s1Uy/A==')
-            cipher = AES.new(key, AES.MODE_CBC, iv)
-            decrypted = cipher.decrypt(encrypted_data)
-            clean = unpad(decrypted).decode('ascii').rstrip()
-
-            print(decrypted)
-            print(clean)
-            return  Response(decrypted)
-        except Exception as e:
-            print("Cannot decrypt datas...")
-            print(e)
-            exit(1)
-        return Response(data)
         '''
         #return Response(data, status = status.HTTP_201_CREATED)
         #else:
