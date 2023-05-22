@@ -346,13 +346,22 @@ class EBIExitosoView(APIView):
         
             return decrypted.decode()
 
-        request = {}  # Se asume que request es un diccionario vacío en Python
-        authorization = request['authorization']
-        amount = request['amount']
-        code = request['code']
-        audit = request['audit']
-        reference = request['reference']
-        token = request['token']
+        Request_Data = request.data
+        
+        Dict_Data_To_Json = json.dumps(Request_Data)
+        
+        Load_Json_Data = json.loads(Dict_Data_To_Json)
+        
+        token = Load_Json_Data['token']
+
+        authorization = Load_Json_Data['authorization']
+
+        
+        amount = Load_Json_Data['amount']
+        code = Load_Json_Data['code']
+        audit = Load_Json_Data['audit']
+        reference = Load_Json_Data['reference']
+       
 
         method = 'aes-256-cbc'
         key = b'1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93'
@@ -364,15 +373,7 @@ class EBIExitosoView(APIView):
         print("Audit:", decrypt(audit, method, key, iv))
         print("Referencia:", decrypt(reference, method, key, iv))
         
-        Request_Data = request.data
-        
-        Dict_Data_To_Json = json.dumps(Request_Data)
-        
-        Load_Json_Data = json.loads(Dict_Data_To_Json)
-        
-        Token = Load_Json_Data['token']
-
-        Autoriza = Load_Json_Data['authorization']
+       
 
         return Response(decrypt(authorization, method, key, iv), status = status.HTTP_201_CREATED)
 
