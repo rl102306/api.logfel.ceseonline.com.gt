@@ -376,11 +376,11 @@ class EBIExitosoView(APIView):
             return Response(ValueError("Incorrect AES key length (%d bytes)" % len(key)))
         '''
 
-        print("Autorización:", decrypt(authorization, method, key, iv))
-        print("Monto:", decrypt(amount, method, key, iv))
+        print("Autorización:", decrypt(authorization, key, iv))
+        print("Monto:", decrypt(amount, key, iv))
         print("Codigo:", code)
-        print("Audit:", decrypt(audit, method, key, iv))
-        print("Referencia:", decrypt(reference, method, key, iv))
+        print("Audit:", decrypt(audit, key, iv))
+        print("Referencia:", decrypt(reference, key, iv))
         
 
         return Response(decrypt(authorization, method, key, iv), status = status.HTTP_201_CREATED)
