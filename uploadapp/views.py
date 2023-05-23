@@ -357,6 +357,14 @@ class EBIExitosoView(APIView):
         key = bytes.fromhex('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')[:32]
         iv = base64.b64decode("ziwVz5mWmPp7qse7s1Uy/A==")
 
+        key_size = [16, 24, 32]
+
+        if len(key) not in key_size:
+
+            print( ValueError("Incorrect AES key length (%d bytes)" % len(key)))
+            
+            return Response(ValueError("Incorrect AES key length (%d bytes)" % len(key)))
+
         print("Autorización:", decrypt(authorization, method, key, iv))
         print("Monto:", decrypt(amount, method, key, iv))
         print("Codigo:", code)
