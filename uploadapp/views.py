@@ -333,9 +333,6 @@ class Existe_Suscripcion_Usuario(APIView):
 
 class EBIExitosoView(APIView):
 
-  
- 
- 
     def post(self,request, *args, **kwargs):
 
         def decrypt(value, method, key, iv):
@@ -347,24 +344,17 @@ class EBIExitosoView(APIView):
             return decrypted.decode()
 
         Request_Data = request.data
-        
         Dict_Data_To_Json = json.dumps(Request_Data)
-        
         Load_Json_Data = json.loads(Dict_Data_To_Json)
-        
         token = Load_Json_Data['token']
-
         authorization = Load_Json_Data['authorization']
-
-        
         amount = Load_Json_Data['amount']
         code = Load_Json_Data['code']
         audit = Load_Json_Data['audit']
         reference = Load_Json_Data['reference']
-       
 
         method = 'aes-256-cbc'
-        key = '1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93'
+        key = bytes.fromhex('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')
         iv = base64.b64decode("ziwVz5mWmPp7qse7s1Uy/A==")
 
         print("Autorización:", decrypt(authorization, method, key, iv))
@@ -373,12 +363,8 @@ class EBIExitosoView(APIView):
         print("Audit:", decrypt(audit, method, key, iv))
         print("Referencia:", decrypt(reference, method, key, iv))
         
-       
 
         return Response(decrypt(authorization, method, key, iv), status = status.HTTP_201_CREATED)
-
-        
-
 
             
         #return redirect('https://logfel.ceseonline.com.gt/pex')
