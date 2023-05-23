@@ -19,6 +19,9 @@ import qrcode
 import json
 import requests
 from Crypto.Cipher import AES
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+
 
 
 
@@ -335,13 +338,22 @@ class EBIExitosoView(APIView):
 
     def post(self,request, *args, **kwargs):
 
-        def decrypt(value, method, key, iv):
+
+        def decrypt(value, key, iv):
+            backend = default_backend()
+            cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
+            decryptor = cipher.decryptor()
+            decrypted = decryptor.update(base64.b64decode(value)) + decryptor.finalize()
+            return decrypted.decode()
+
+
+        '''def decrypt(value, method, key, iv):
         
             cipher = AES.new(key, AES.MODE_CBC, iv)
         
             decrypted = cipher.decrypt(base64.b64decode(value))
         
-            return decrypted.decode()
+            return decrypted.decode()'''
 
         Request_Data = request.data
         Dict_Data_To_Json = json.dumps(Request_Data)
@@ -357,13 +369,12 @@ class EBIExitosoView(APIView):
         key = bytes.fromhex('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')[:32]
         iv = base64.b64decode("ziwVz5mWmPp7qse7s1Uy/A==")
 
+        '''
         key_size = [16, 24, 32]
-
         if len(key) not in key_size:
-
             print( ValueError("Incorrect AES key length (%d bytes)" % len(key)))
-            
             return Response(ValueError("Incorrect AES key length (%d bytes)" % len(key)))
+        '''
 
         print("Autorización:", decrypt(authorization, method, key, iv))
         print("Monto:", decrypt(amount, method, key, iv))
