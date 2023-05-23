@@ -354,7 +354,7 @@ class EBIExitosoView(APIView):
         reference = Load_Json_Data['reference']
 
         method = 'aes-256-cbc'
-        key = bytes.fromhex('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')
+        key = bytes.fromhex('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')[:32]
         iv = base64.b64decode("ziwVz5mWmPp7qse7s1Uy/A==")
 
         print("Autorización:", decrypt(authorization, method, key, iv))
