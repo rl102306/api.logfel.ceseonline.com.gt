@@ -338,7 +338,7 @@ class EBIExitosoView(APIView):
 
     def post(self,request, *args, **kwargs):
 
-
+        '''
         def decrypt(value, key, iv):
             backend = default_backend()
             cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
@@ -347,13 +347,13 @@ class EBIExitosoView(APIView):
             return decrypted.decode()
 
 
-        '''def decrypt(value, method, key, iv):
+        def decrypt(value, method, key, iv):
         
             cipher = AES.new(key, AES.MODE_CBC, iv)
         
             decrypted = cipher.decrypt(base64.b64decode(value))
         
-            return decrypted.decode()'''
+            return decrypted.decode()
 
         Request_Data = request.data
         Dict_Data_To_Json = json.dumps(Request_Data)
@@ -366,15 +366,17 @@ class EBIExitosoView(APIView):
         reference = Load_Json_Data['reference']
 
         method = 'aes-256-cbc'
+
+    
         key = bytes.fromhex('1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93')[:32]
         iv = base64.b64decode("ziwVz5mWmPp7qse7s1Uy/A==")
 
-        '''
+        
         key_size = [16, 24, 32]
         if len(key) not in key_size:
             print( ValueError("Incorrect AES key length (%d bytes)" % len(key)))
             return Response(ValueError("Incorrect AES key length (%d bytes)" % len(key)))
-        '''
+        
 
         print("Autorización:", decrypt(authorization, key, iv))
         print("Monto:", decrypt(amount, key, iv))
@@ -388,11 +390,65 @@ class EBIExitosoView(APIView):
             
         #return redirect('https://logfel.ceseonline.com.gt/pex')
 
-        '''
+        
         #return Response(data, status = status.HTTP_201_CREATED)
         #else:
             #return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         '''
+
+        def decrypt(value, key, iv):
+            backend = default_backend()
+            cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
+            decryptor = cipher.decryptor()
+            decrypted = decryptor.update(base64.b64decode(value)) + decryptor.finalize()
+            return decrypted.decode()
+
+        key = bytes.fromhex("1e63b2f7a01ddea85782dea27b46a04da699dae0ff5c58cf93")
+        method = "aes-256-cbc"
+        options = 0
+        iv = base64.b64decode("ziwVz5mWmPp7qse7s1Uy/A==")
+
+        Request_Data = request.data
+        Dict_Data_To_Json = json.dumps(Request_Data)
+        Load_Json_Data = json.loads(Dict_Data_To_Json)
+        token = Load_Json_Data['token']
+        authorization = Load_Json_Data['authorization']
+        amount = Load_Json_Data['amount']
+        code = Load_Json_Data['code']
+        audit = Load_Json_Data['audit']
+        reference = Load_Json_Data['reference']
+
+
+        if len(Load_Json_Data) != 0:
+            token = Load_Json_Data['token']
+            authorization = Load_Json_Data['authorization']
+            amount = Load_Json_Data['amount']
+            code = Load_Json_Data['code']
+            audit = Load_Json_Data['audit']
+            reference = Load_Json_Data['reference']
+
+        else:
+            a = "D5fI4yONT+D98xUrEl/tSg=="
+            result = decrypt(a, key, iv)
+            print(result)
+            exit()
+
+        d_authorization = decrypt(authorization, key, iv)
+        d_amount = decrypt(amount, key, iv)
+        d_audit = decrypt(audit, key, iv)
+        d_reference = decrypt(reference, key, iv)
+
+        print("encriptado")
+        print(Load_Json_Data)
+
+        print("desencriptado:")
+        print("Número de autorización:", d_authorization)
+        print("Monto:", d_amount)
+        print("Número de código:", code)
+        print("Número de auditoría:", d_audit)
+        print("Número de referencia:", d_reference)
+        print("Número de token:", token)
+
 class EBIRechazoView(APIView): 
 
     def post(self,request, *args, **kwargs):
