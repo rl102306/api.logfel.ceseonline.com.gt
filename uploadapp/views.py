@@ -11,7 +11,6 @@ from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader,PdfFileWriter
 from django.contrib.auth.models import User
 from django.contrib import auth
-# from rest_framework.response import Response
 from reportlab.lib.units import inch
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -21,6 +20,7 @@ import requests
 from Crypto.Cipher import AES
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+from django.http import HttpResponseRedirect
 
 
 
@@ -404,7 +404,8 @@ class EBIExitosoView(APIView):
         print(json_data)
 
         
-        return Response(json_data,status=200,content_type="application/json")
+        #return Response(json_data,status=200,content_type="application/json")
+        return HttpResponseRedirect('https://logfel.ceseonline.com.gt/pex')
 
 class EBIRechazoView(APIView): 
 
