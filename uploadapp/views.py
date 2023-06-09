@@ -370,6 +370,9 @@ class EBIExitosoView(APIView):
 
         # Eliminar caracteres no imprimibles y caracteres de relleno de d_reference
         d_reference = ''.join(c for c in d_reference if ord(c) >= 32 and ord(c) <= 126)
+        d_authorization = ''.join(c for c in d_authorization if ord(c) >= 32 and ord(c) <= 126)
+        d_audit = ''.join(c for c in d_audit if ord(c) >= 32 and ord(c) <= 126)
+        d_amount = ''.join(c for c in d_amount if ord(c) >= 32 and ord(c) <= 126)
 
         print("encriptado:")
         print("authorization:", authorization)
@@ -402,10 +405,7 @@ class EBIExitosoView(APIView):
 
         
         return Response(json_data,status=200,content_type="application/json")
-        
 
-
-        
 class EBIRechazoView(APIView): 
 
     def post(self,request, *args, **kwargs):
