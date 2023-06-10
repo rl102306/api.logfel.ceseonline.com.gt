@@ -578,6 +578,11 @@ class EBIExitosoView(APIView):
         encoded_json_data = urllib.parse.quote(json_data)
         
         redirect_url = f"https://logfel.ceseonline.com.gt/pex?data={encoded_json_data}"
+
+        print(redirect_url)  # Imprimir la URL generada
+
+# Devolver la URL generada como respuesta
+        return redirect_url
         
         #return Response(json_data,status=200,content_type="application/json")r
         #return HttpResponseRedirect('https://logfel.ceseonline.com.gt/pex')
