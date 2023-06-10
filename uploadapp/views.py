@@ -581,11 +581,11 @@ class EBIExitosoView(APIView):
 
         print(redirect_url)  # Imprimir la URL generada
 
-# Devolver la URL generada como respuesta
-        return redirect_url
+        # Devolver la URL generada como respuesta
+        #return redirect_url
         
         #return Response(json_data,status=200,content_type="application/json")r
-        #return HttpResponseRedirect('https://logfel.ceseonline.com.gt/pex')
+        return HttpResponseRedirect(redirect_url)
 
 class EBIRechazoView(APIView): 
 
