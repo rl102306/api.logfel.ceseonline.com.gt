@@ -50,6 +50,16 @@ ALLOWED_HOSTS = ['api.logfel.ceseonline.com.gt','localhost', '127.0.0.1']
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:4200', 'https://logfel.ceseonline.com.gt','http://logfel.ceseonline.com.gt']
 
+SESSION_COOKIE_SECURE = True  # Solo enviar cookies en conexiones HTTPS
+
+CSRF_COOKIE_SECURE = True  # Solo enviar cookies CSRF en conexiones HTTPS
+
+SESSION_COOKIE_HTTPONLY = True  # Acceso a la cookie solo a través de HTTP
+
+CSRF_COOKIE_HTTPONLY = True  # Acceso a la cookie CSRF solo a través de HTTP
+
+CORS_ALLOW_CREDENTIALS = True 
+
 CORS_ALLOW_METHODS = [
 'DELETE',
 'GET',
@@ -74,7 +84,7 @@ CORS_ALLOW_HEADERS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 
@@ -88,6 +98,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+
+    
 ]
 
  

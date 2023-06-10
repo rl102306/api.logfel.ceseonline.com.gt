@@ -4,13 +4,15 @@ from urllib import response
 from django.shortcuts import redirect
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status , generics, permissions
+import urllib3
 from uploadapp.models import Empresa
-from .serializers import FileSerializer,PosicionSerializer,EmpresaSerializer, GetUserCompany,ProfileSeriaizer, SuscripcionSerializer,HistoriaSuscripcionSerializer
+from .serializers import FileSerializer,PosicionSerializer,EmpresaSerializer, GetUserCompany,ProfileSeriaizer, SuscripcionSerializer,HistoriaSuscripcionSerializer,UserSerializar
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader,PdfFileWriter
 from django.contrib.auth.models import User
 from django.contrib import auth
+
 from reportlab.lib.units import inch
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -22,7 +24,11 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from django.http import HttpResponseRedirect
 
+from rest_framework.exceptions import AuthenticationFailed
 
+import jwt, datetime
+
+from django.conf import settings
 
 
 class FileUploadView(APIView):
@@ -40,9 +46,9 @@ class FileUploadView(APIView):
  
 
 class UserRegistrationView(APIView):
-   
 
     def post(self,request, *args, **kwargs):
+
             Request_Data = request.data
             Dict_Data_To_Json = json.dumps(Request_Data)
             Load_Json_Data = json.loads(Dict_Data_To_Json)
@@ -52,8 +58,11 @@ class UserRegistrationView(APIView):
             username = Load_Json_Data['User']
             apellido = Load_Json_Data['Apellido']    
             isactive = True
+
             if User.objects.filter(username=username).exists():
+
                return Response('190',status=status.HTTP_409_CONFLICT)
+
             else:
                 usernew = User.objects.create_user(
                     username = username,
@@ -155,36 +164,196 @@ class FileSend(APIView):
             return Response(posicion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+    
 class UserLoginView(APIView):
 
     def post(self,request, *args, **kwargs):
+
         if request.method == 'POST':
+
+            response = Response()
+
+            BUSP : str
+
             Request_Data = request.data
+
             Dict_Data_To_Json = json.dumps(Request_Data)
+
             Load_Json_Data = json.loads(Dict_Data_To_Json)
+
             user = auth.authenticate(
+
             username= Load_Json_Data['username'],
+
             password = Load_Json_Data['password'])
 
             if user is not None:
+
+
                 auth.login(request,user)
-                id_usuario = request.user.id
-                UserResponse = {'userId': id_usuario}
                 
-                return Response(UserResponse,
-                    status=200,
-                    content_type='application/json')
+                
+                payload = {
+                    'id': user.id,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                    'iat': datetime.datetime.utcnow()
+                }
+
+                token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+                Suscripcion_Existe = SuscripcionSerializer.Existe_Suscripcion_Usuario(user.id)
+
+                if Suscripcion_Existe:
+
+                    print("Existe Suscripcion")
+
+                    Estado_Suscripcion = SuscripcionSerializer.Estado_Suscripcion(user.id)
+
+                    if Estado_Suscripcion:
+
+                        print("Estado de suscription activa")
+                        
+                        Tipo_Suscripcion = SuscripcionSerializer.Tipo_Suscripcion(user.id)
+
+                        if Tipo_Suscripcion == 'Mensual':
+
+                            print("Mensual")
+
+                            Fecha_Suscripcion = SuscripcionSerializer.Fecha_Suscripcion_Usuario(user.id)
+
+                            Fecha_Actual = datetime.datetime.today().date()
+
+                            Diferencia = Fecha_Suscripcion - Fecha_Actual
+
+
+                            Diferencia_Dias = Diferencia.days
+
+
+                            if Diferencia_Dias > 30:
+
+                                print("La fecha es mayor a 30 días respecto a la fecha actual")
+
+                            elif Diferencia_Dias < -30:
+
+                                print("La fecha es menor a 30 días respecto a la fecha actual")
+                             
+                                Cancelar_Suscripcion = SuscripcionSerializer.Cancelar_Suscripcion_Usuario(user.id)
+
+                            else:
+
+                                print("La fecha está dentro del rango de 30 días respecto a la fecha actual")
+
+                        elif Tipo_Suscripcion == 'Free':
+
+                            print("free")
+
+                            Fecha_Suscripcion = SuscripcionSerializer.Fecha_Suscripcion_Usuario(user.id)
+
+                            Fecha_Actual = datetime.datetime.today().date()
+
+                            Diferencia = Fecha_Suscripcion - Fecha_Actual
+
+                            Diferencia_Dias = Diferencia.days
+
+                            if Diferencia_Dias > 15:
+
+                                print("La fecha es mayor a 15 días respecto a la fecha actual")
+
+                            elif Diferencia_Dias < -15:
+
+                                print("La fecha es menor a 15 días respecto a la fecha actual")
+
+                                Cancelar_Suscripcion = SuscripcionSerializer.Cancelar_Suscripcion_Usuario(user.id)
+
+                            else:
+
+                                print("La fecha está dentro del rango de 15 días respecto a la fecha actual")
+
+                        
+                            
+
+                            
+                            
+                    else:
+
+                        print("Estado de suscripcion inactiva")
+
+                        BUSP = "PYEXS0"
+                        
+                        response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+        
+            
+
+
+
+
+
+                else:
+
+                    print("No existe Suscripcion")
+
+                    BUSP = "PYNEXS1"
+
+                    response.set_cookie(key='BUSP', value='PYNEXS1', httponly=True)
+            
+                # TIP = JWT
+
+                response.set_cookie(key='jwt', value=token, httponly=True)
+        
+                response.data = { 'jwt': token , 'busp' : BUSP }
+                
+                return response
+
+                
+                #return Response(UserResponse, status=200, content_type='application/json')
+            
             else:
                 
                 return Response('1900',status=status.HTTP_400_BAD_REQUEST)
         else:
+            
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+class UserView(APIView):
+
+    def get(self, request):
+
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+
+            raise AuthenticationFailed('Unauthenticated!')
+            
+        try:
+
+            payload = jwt.decode(token, settings.SECRET_KEY , algorithms=['HS256'])
+
+        except jwt.ExpiredSignatureError:
+
+            raise AuthenticationFailed('Unauthenticated!')
+            
+
+        return Response(payload)
 
 class UserLogoutView(APIView):
 
     def post(self,request, *args, **kwargs):
-        if request.method == 'POST':
+
+        response = Response()
+        
+        response.delete_cookie('jwt')
+        
+        response.data = {
+        
+            'message': 'se cerro sesion'
+        
+        }
+        
+        return response
+
+'''
+            if request.method == 'POST':
             Request_Data = request.data
             Dict_Data_To_Json = json.dumps(Request_Data)
             Load_Json_Data = json.loads(Dict_Data_To_Json)
@@ -199,7 +368,7 @@ class UserLogoutView(APIView):
                 return Response('1900',status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
+'''
 
 #CODIGO NUEVO
 
@@ -403,9 +572,12 @@ class EBIExitosoView(APIView):
 
         print(json_data)
 
+        encoded_json_data = urllib3.parse.quote(json_data)
+        
+        redirect_url = f"https://logfel.ceseonline.com.gt/pex?data={encoded_json_data}"
         
         #return Response(json_data,status=200,content_type="application/json")
-        return HttpResponseRedirect('https://logfel.ceseonline.com.gt/pex')
+        #return HttpResponseRedirect('https://logfel.ceseonline.com.gt/pex')
 
 class EBIRechazoView(APIView): 
 

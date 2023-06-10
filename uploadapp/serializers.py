@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.utils import field_mapping
+
 
 from .models import File, PosicionLogo , User , Empresa, Profile, Suscripcion,Historia_Suscripcion
 
@@ -74,6 +74,7 @@ class SuscripcionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Suscripcion
+
         fields = ('id','user','tipo','fecha','estado')
 
     def Existe_Suscripcion_Usuario(UserId):
@@ -83,6 +84,30 @@ class SuscripcionSerializer(serializers.ModelSerializer):
         except Suscripcion.DoesNotExist:
             SuscripcionExiste = False
         return SuscripcionExiste
+    
+    def Cancelar_Suscripcion_Usuario(UserId):
+
+        Estado_Sus = Suscripcion.objects.get(user_id = UserId)
+
+        Estado_Sus.estado = False
+
+        Estado_Sus.save()
+
+        return Estado_Sus
+
+    
+    def Fecha_Suscripcion_Usuario(UserId):
+        
+        Fecha_Sub = Suscripcion.objects.get(user_id = UserId).fecha
+            
+        return Fecha_Sub
+    
+
+    def Tipo_Suscripcion(UserId):
+
+        Tipo_Sub = Suscripcion.objects.get(user_id = UserId).tipo
+
+        return Tipo_Sub
 
     def Estado_Suscripcion(UserId):
 
@@ -111,7 +136,3 @@ class HistoriaSuscripcionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Historia_Suscripcion
         fields = ('id','user','tipo','fecha')
-
-
-        
-
