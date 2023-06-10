@@ -1,6 +1,9 @@
 import base64
 import sqlite3
 from urllib import response
+
+import urllib.parse
+
 from django.shortcuts import redirect
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
@@ -572,11 +575,11 @@ class EBIExitosoView(APIView):
 
         print(json_data)
 
-        encoded_json_data = urllib3.parse.quote(json_data)
+        encoded_json_data = urllib.parse.quote(json_data)
         
         redirect_url = f"https://logfel.ceseonline.com.gt/pex?data={encoded_json_data}"
         
-        #return Response(json_data,status=200,content_type="application/json")
+        #return Response(json_data,status=200,content_type="application/json")r
         #return HttpResponseRedirect('https://logfel.ceseonline.com.gt/pex')
 
 class EBIRechazoView(APIView): 
