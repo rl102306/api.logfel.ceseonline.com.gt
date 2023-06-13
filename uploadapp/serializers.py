@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-from .models import File, PosicionLogo , User , Empresa, Profile, Suscripcion,Historia_Suscripcion
+from .models import File, PosicionLogo , User , Empresa, Profile, Suscripcion,Historia_Suscripcion,Suscripcion_Mensual_Info_Historico
 
 class FileSerializer(serializers.ModelSerializer):
     
@@ -68,6 +68,14 @@ class GetUserCompany():
         fields = ('empresa'))
         test = Profile.objects.get(user_id = uid).empresa_id
         return userid
+
+class SubMensualDataRegistrationSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+
+        model = Suscripcion_Mensual_Info_Historico
+
+        fields = ('id','user','autorizacion','fecha','monto','referencia','codigo','auditoria')
 
 
 class SuscripcionSerializer(serializers.ModelSerializer):

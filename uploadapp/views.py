@@ -1,16 +1,16 @@
 import base64
 import sqlite3
-from urllib import response
 
 import urllib.parse
+import webbrowser
 
 from django.shortcuts import redirect
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
-from rest_framework import status , generics, permissions
-import urllib3
+from rest_framework import status
+
 from uploadapp.models import Empresa
-from .serializers import FileSerializer,PosicionSerializer,EmpresaSerializer, GetUserCompany,ProfileSeriaizer, SuscripcionSerializer,HistoriaSuscripcionSerializer,UserSerializar
+from .serializers import FileSerializer,PosicionSerializer,EmpresaSerializer, GetUserCompany,ProfileSeriaizer, SuscripcionSerializer,HistoriaSuscripcionSerializer,UserSerializar,SubMensualDataRegistrationSerializer
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader,PdfFileWriter
 from django.contrib.auth.models import User
@@ -25,7 +25,7 @@ import requests
 from Crypto.Cipher import AES
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-from django.http import HttpResponseRedirect
+
 
 from rest_framework.exceptions import AuthenticationFailed
 
@@ -157,12 +157,8 @@ class FileSend(APIView):
                 encoded_string = base64.b64encode(pdf_file.read()) 
             
             return Response(encoded_string, status=status.HTTP_200_OK)
-         
-            
-            #return Response(file_fact_url, status=status.HTTP_200_OK)
         
         else:
-
 
             return Response(posicion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -236,6 +232,22 @@ class UserLoginView(APIView):
                             if Diferencia_Dias > 30:
 
                                 print("La fecha es mayor a 30 días respecto a la fecha actual")
+                                
+                                print("La fecha está dentro del rango de 30 días respecto a la fecha actual")
+
+                                if Existe_Empresa:
+
+                                    BUSP = "PYACTMENSUALEMP"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+
+                                else:
+
+                                    BUSP = "PYACTMENSUAL"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+        
+
 
                             elif Diferencia_Dias < -30:
 
@@ -243,10 +255,32 @@ class UserLoginView(APIView):
                              
                                 Cancelar_Suscripcion = SuscripcionSerializer.Cancelar_Suscripcion_Usuario(user.id)
 
+                                BUSP = "PYVENMENSUAL"
+                        
+                                response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+        
+
                             else:
+
 
                                 print("La fecha está dentro del rango de 30 días respecto a la fecha actual")
 
+                                Existe_Empresa = ProfileSeriaizer.Existe_Usuario_Empresa(user.id)
+
+                                print("Ahora valido si hay empresa creada")
+
+                                if Existe_Empresa:
+
+                                    BUSP = "PYACTMENSUALEMP"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+
+                                else:
+
+                                    BUSP = "PYACTMENSUAL"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+        
                         elif Tipo_Suscripcion == 'Free':
 
                             print("free")
@@ -263,20 +297,53 @@ class UserLoginView(APIView):
 
                                 print("La fecha es mayor a 15 días respecto a la fecha actual")
 
+                                Existe_Empresa = ProfileSeriaizer.Existe_Usuario_Empresa(user.id)
+
+                                print("Ahora valido si hay empresa creada")
+
+                                if Existe_Empresa:
+
+                                    BUSP = "PYACTFREEEMP"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+
+                                else:
+
+                                    BUSP = "PYACTFREE"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+
                             elif Diferencia_Dias < -15:
 
                                 print("La fecha es menor a 15 días respecto a la fecha actual")
 
+                                print("El plan free ya vencio debe renovar de nuevo")
+
                                 Cancelar_Suscripcion = SuscripcionSerializer.Cancelar_Suscripcion_Usuario(user.id)
+
+                                BUSP = "PYVENFREE"
+                        
+                                response.set_cookie(key='BUSP', value=BUSP, httponly=True)
 
                             else:
 
                                 print("La fecha está dentro del rango de 15 días respecto a la fecha actual")
 
-                        
-                            
+                                Existe_Empresa = ProfileSeriaizer.Existe_Usuario_Empresa(user.id)
 
-                            
+                                print("Ahora valido si hay empresa creada")
+
+                                if Existe_Empresa:
+
+                                    BUSP = "PYACTFREEEMP"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
+
+                                else:
+
+                                    BUSP = "PYACTFREE"
+                        
+                                    response.set_cookie(key='BUSP', value=BUSP, httponly=True)
                             
                     else:
 
@@ -286,12 +353,6 @@ class UserLoginView(APIView):
                         
                         response.set_cookie(key='BUSP', value=BUSP, httponly=True)
         
-            
-
-
-
-
-
                 else:
 
                     print("No existe Suscripcion")
@@ -320,6 +381,7 @@ class UserLoginView(APIView):
 
 class UserView(APIView):
 
+
     def get(self, request):
 
         token = request.COOKIES.get('jwt')
@@ -338,6 +400,24 @@ class UserView(APIView):
             
 
         return Response(payload)
+        
+
+
+
+
+class CheckLoginStatus(APIView):
+
+    def get(self,request):
+
+        token = request.COOKIES.get('jwt')
+
+        if token:
+        
+            return Response({'isLoggedIn': True},status=status.HTTP_200_OK)
+        else:
+        
+            return Response({'isLoggedIn': False},status=status.HTTP_401_UNAUTHORIZED)
+
 
 class UserLogoutView(APIView):
 
@@ -349,31 +429,13 @@ class UserLogoutView(APIView):
         
         response.data = {
         
-            'message': 'se cerro sesion'
+            'message': 'Se cerro la sesion.'
         
         }
         
+        
         return response
 
-'''
-            if request.method == 'POST':
-            Request_Data = request.data
-            Dict_Data_To_Json = json.dumps(Request_Data)
-            Load_Json_Data = json.loads(Dict_Data_To_Json)
-            username = Load_Json_Data['username']
-            if username is not None:
-                auth.logout(request,username)
-                UserLogout = {'Logout': 'Exitoso'}
-                return Response(UserLogout,
-                    status=200,
-                    content_type='application/json')
-            else:
-                return Response('1900',status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-'''
-
-#CODIGO NUEVO
 
 class CompanyRegistrationView(APIView): 
 
@@ -509,7 +571,7 @@ class Existe_Suscripcion_Usuario(APIView):
 class EBIExitosoView(APIView):
 
     def post(self,request, *args, **kwargs):
-
+        
         def decrypt(ciphertext, key, iv):
             
             cipher = AES.new(key, AES.MODE_CBC, iv)
@@ -546,46 +608,24 @@ class EBIExitosoView(APIView):
         d_audit = ''.join(c for c in d_audit if ord(c) >= 32 and ord(c) <= 126)
         d_amount = ''.join(c for c in d_amount if ord(c) >= 32 and ord(c) <= 126)
 
-        print("encriptado:")
-        print("authorization:", authorization)
-        print("amount:", amount)
-        print("code:", code)
-        print("audit:", audit)
-        print("reference:", reference)
-        print("token:", token)
-
-        print("\ndesencriptado:")
-        print("Número de autorización:", d_authorization)
-        print("Monto:", d_amount)
-        print("Número de código:", code)
-        print("Número de auditoría:", d_audit)
-        print("Número de referencia:", d_reference)
-        print("Número de token:", token)
-
         data = {
+
             "autorizacion": d_authorization,
             "monto": d_amount,
             "codigo": code,
             "auditoria": d_audit,
-            "referencia": d_reference,
+            "referencia":d_reference,
             "token": token
         }
-
-        json_data = json.dumps(data)
-
-        print(json_data)
-
-        encoded_json_data = urllib.parse.quote(json_data)
         
-        redirect_url = f"https://logfel.ceseonline.com.gt/pex?data={encoded_json_data}"
 
-        print(redirect_url)  # Imprimir la URL generada
+        encoded_data = urllib.parse.quote(json.dumps(data))
 
-        # Devolver la URL generada como respuesta
-        #return redirect_url
-        
-        #return Response(json_data,status=200,content_type="application/json")r
-        return HttpResponseRedirect(redirect_url)
+        url = f'https://logfel.ceseonline.com.gt/pex?data={encoded_data}'
+
+        webbrowser.open(url)
+
+        return Response(url)
 
 class EBIRechazoView(APIView): 
 
@@ -614,6 +654,22 @@ class SuscripcionRegistrationView(APIView):
         else:
             return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class SubMensualDataRegistrationView(APIView): 
+
+    def post(self,request, *args, **kwargs):
+
+        submensualdata_serializer = SubMensualDataRegistrationSerializer(data = request.data)
+
+        if SubMensualDataRegistrationSerializer.is_valid():
+
+            submensualdata_serializer.save()
+
+            return Response(submensualdata_serializer.data,status=status.HTTP_201_CREATED)
+
+        else:
+
+            return Response(submensualdata_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CPUsuarioEmpresa(APIView):
     def post(self,request, *args, **kwargs):
