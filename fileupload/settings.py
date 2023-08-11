@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'corsheaders'
 ]
 
-ALLOWED_HOSTS = ['api.logfel.ceseonline.com.gt','localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['api.logfel.ceseonline.com.gt','localhost', '127.0.0.1','www.api.logfel.ceseonline.com.gt']
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:4200', 'https://logfel.ceseonline.com.gt','http://logfel.ceseonline.com.gt']
 
