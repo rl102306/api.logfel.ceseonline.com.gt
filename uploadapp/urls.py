@@ -1,19 +1,25 @@
 from django.urls import path
-from rest_framework.authtoken.views import obtain_auth_token
 from .views import *
+
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     
-    path('File_Upload_Fact_Ini/post', FileUploadView.as_view()),
-    path('Posicion_Size/post', FileSend.as_view()),
+    path('factura_sp', FileUploadView.as_view()),
+    path('factura_yp', FileSend.as_view()),
+    
+    
     path('signup/post',UserRegistrationView.as_view()),
     
-    path('login/',UserLoginView.as_view()),
-    path('login/user', UserView.as_view()),
-    path('login/check',CheckLoginStatus.as_view()),
-    path('logout',UserLogoutView.as_view()),
     
-    path('company/post',CompanyRegistrationView.as_view()),
+    
+    path('login',LoginView.as_view()),
+    path('logout',LogoutView.as_view()),
+    path('refresh-token',UserToken.as_view()),
+
+    
+    path('empresa',CompanyRegistrationView.as_view()),
+    
     path('user/post',UserRegistrationView.as_view()),
     path('guc/get',GUC.as_view()),
     
@@ -28,7 +34,7 @@ urlpatterns = [
     path('ebi_exitoso', EBIExitosoView.as_view()),
     path('ebi_rechazo', EBIRechazoView.as_view()),
     
-    path('crear_perfil',CPUsuarioEmpresa.as_view()),
+    #path('crear_perfil',CPUsuarioEmpresa.as_view()),
     
     
 

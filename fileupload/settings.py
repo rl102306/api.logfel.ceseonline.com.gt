@@ -31,6 +31,8 @@ DEBUG = True
 
 
 
+TOKEN_EXPIRED_AFTER_SECONDS = 1800
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,15 +52,6 @@ ALLOWED_HOSTS = ['api.logfel.ceseonline.com.gt','localhost', '127.0.0.1']
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:4200', 'https://logfel.ceseonline.com.gt','http://logfel.ceseonline.com.gt']
 
-SESSION_COOKIE_SECURE = True  # Solo enviar cookies en conexiones HTTPS
-
-CSRF_COOKIE_SECURE = True  # Solo enviar cookies CSRF en conexiones HTTPS
-
-SESSION_COOKIE_HTTPONLY = True  # Acceso a la cookie solo a través de HTTP
-
-CSRF_COOKIE_HTTPONLY = True  # Acceso a la cookie CSRF solo a través de HTTP
-
-CORS_ALLOW_CREDENTIALS = True 
 
 CORS_ALLOW_METHODS = [
 'DELETE',
@@ -82,11 +75,6 @@ CORS_ALLOW_HEADERS = [
 ]
 # Agregado para la autenticacion
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -97,9 +85,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-
-    
+    'django.middleware.common.CommonMiddleware',    
 ]
 
  
@@ -171,11 +157,14 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+TIME_ZONE_OFFSET = timedelta(hours=-6)
+
+
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

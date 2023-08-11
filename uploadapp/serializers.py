@@ -7,7 +7,7 @@ class FileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = File
-        fields = "__all__"
+        fields = ('B64_Factura_SP','Str_Usuario')
 
     def last():
         rutalast = File.objects.order_by('id').last()
@@ -15,16 +15,18 @@ class FileSerializer(serializers.ModelSerializer):
 
 
 class PosicionSerializer(serializers.ModelSerializer):
-
+    
     class Meta:
+    
         model = PosicionLogo
-        fields = ('id','posicion','url','usuario','fecha','linkqrcod','slogan')
+    
+        fields = ('id','posicion','facsp','usuario','size_logo','linkqrcod','slogan','fecha')
 
-    def getlogourl(uid):
-        idcompany = Profile.objects.get(user_id = uid).empresa_id
-        logoc = Empresa.objects.get(id = idcompany)
-        url = logoc.logo.url
-        return url
+    def Get_Logo_Empresa(username):
+        Id_Usuario = User.objects.get(username = username).id
+        Id_Empresa = Profile.objects.get(user_id = Id_Usuario).empresa_id
+        Logo_Empresa  = Empresa.objects.get(id = Id_Empresa).logo
+        return Logo_Empresa
 
     def idurllast(urlast):
         idurlast = PosicionLogo.objects.get(url = urlast).id
@@ -34,17 +36,13 @@ class UserSerializar(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id','nombre','correo','estado',
-        'password')
-
+        fields = ('id','username','email','first_name','last_name','is_active')
 
 class EmpresaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Empresa
-        fields = ('id','nombre','nit','direccion',
-        'logo', 'estado'
-        )
+        fields = ('id','nombre','nit','direccion','logo')
 
 class ProfileSeriaizer(serializers.ModelSerializer):
 
@@ -52,14 +50,25 @@ class ProfileSeriaizer(serializers.ModelSerializer):
         model = Profile
         fields = ('id','user','empresa')
 
-    def Existe_Usuario_Empresa(UserId):
+    def EM_Usuario_Empresa(UserId):
+ 
         try:
-            Profile.objects.get(user_id = UserId).empresa_id
-            EmpresaExiste = True
-        except Profile.DoesNotExist:
-            EmpresaExiste = False
-        return EmpresaExiste
+        
+            Profile.objects.get(user_id = UserId)
 
+            EmpresaUsuario = True
+        
+        except Profile.DoesNotExist:
+        
+            EmpresaUsuario = False
+
+        except Profile.MultipleObjectsReturned:
+
+            EmpresaUsuario = True
+        
+        return EmpresaUsuario
+
+'''
 class GetUserCompany():
 
     def getuc(uid):
@@ -68,13 +77,12 @@ class GetUserCompany():
         fields = ('empresa'))
         test = Profile.objects.get(user_id = uid).empresa_id
         return userid
+'''
 
 class SubMensualDataRegistrationSerializer(serializers.ModelSerializer):
-    
+     
     class Meta:
-
         model = Suscripcion_Mensual_Info_Historico
-
         fields = ('id','user','autorizacion','fecha','monto','referencia','codigo','auditoria')
 
 
@@ -82,7 +90,6 @@ class SuscripcionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Suscripcion
-
         fields = ('id','user','tipo','fecha','estado')
 
     def Existe_Suscripcion_Usuario(UserId):
@@ -96,40 +103,29 @@ class SuscripcionSerializer(serializers.ModelSerializer):
     def Cancelar_Suscripcion_Usuario(UserId):
 
         Estado_Sus = Suscripcion.objects.get(user_id = UserId)
-
         Estado_Sus.estado = False
-
         Estado_Sus.save()
-
         return Estado_Sus
 
     
     def Fecha_Suscripcion_Usuario(UserId):
-        
         Fecha_Sub = Suscripcion.objects.get(user_id = UserId).fecha
-            
         return Fecha_Sub
     
 
     def Tipo_Suscripcion(UserId):
-
         Tipo_Sub = Suscripcion.objects.get(user_id = UserId).tipo
-
         return Tipo_Sub
 
     def Estado_Suscripcion(UserId):
-
         Estado_Sus = Suscripcion.objects.get(user_id = UserId).estado
-
         return Estado_Sus
 
     def Obtener_Informacion_Historia_Suscripcion(UserId):
-
         Usuario = Suscripcion.objects.get(user_id = UserId).user
         Str_Usuario = str(Usuario)
         Tipo = Suscripcion.objects.get(user_id = UserId).tipo
         Fecha = Suscripcion.objects.get(user_id = UserId).fecha
-
         
         Json_Historia_Suscripcion = {
             'user': Str_Usuario,

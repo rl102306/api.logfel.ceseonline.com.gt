@@ -3,29 +3,27 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class File(models.Model):
-
-    file = models.FileField(blank=False, null=False)
-
-    Str_Id_Usuario = models.CharField(max_length=200,null=True)
-
+    #file = models.FileField(blank=False, null=False)
+    B64_Factura_SP = models.TextField()  
+    #file = models.CharField(max_length=2500 , null = True)
+    Str_Usuario = models.TextField()
     def __str__(self):
-
-        return str(self.file.name) + " - " + str(self.Str_Id_Usuario) 
+        return str(self.Str_Usuario) 
 
 class PosicionLogo(models.Model):
 
     id = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
-    posicion = models.CharField(max_length=100, null=True)
-    url = models.CharField(max_length=200,null=True)
-    usuario = models.CharField(max_length=200,null=True)
-    size =  models.CharField(max_length=200,null=True)
+    posicion = models.CharField(max_length=75, null=True)
+    facsp = models.TextField()
+    usuario = models.CharField(max_length=50,null=True)
+    size_logo =  models.CharField(max_length=75,null=True)
     linkqrcod = models.CharField(max_length=500,null=True)
     slogan = models.CharField(max_length=500,null=True)
-    fecha = models.DateField(null=True)
+    fecha = models.CharField(max_length=75,null=True)
 
     def __str__(self):
 
-        return str(self.id) + " - " + str(self.posicion) + " - " + str(self.url) + " - " + str(self.usuario)
+        return str(self.usuario)
     
 class Empresa(models.Model):
 
@@ -33,25 +31,20 @@ class Empresa(models.Model):
     nombre = models.CharField(max_length=100, null=True)
     nit = models.CharField(max_length=100,null=True)
     direccion = models.CharField(max_length=100, null=True)
-    logo = models.FileField(blank=True, null=True)
-    estado = models.BooleanField(default=False)
+    logo = models.TextField()
+    #estado = models.BooleanField(default=False)
 
     def __str__(self):
 
-        return str(self.nombre) + " - " + str(self.nit) + " - " + str(self.estado) + " - " +str(self.logo)
+        return str(self.nombre) + " - " + str(self.nit) + " - "
 
 class Profile(models.Model):
-
     id = models.AutoField(auto_created=True, primary_key=True,serialize=False,verbose_name='ID')
     user = models.ForeignKey(User,null=True,blank=True,on_delete=models.CASCADE)
     empresa = models.ForeignKey(Empresa,null=True,blank=True,on_delete=models.CASCADE)
-
     def __str__(self):
-        
         return str(self.id) + " - " + str(self.user) + " - " + str(self.empresa)
-
     class Meta:
-
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
 
@@ -94,7 +87,7 @@ class Suscripcion_Mensual_Info_Historico(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True,serialize=False,verbose_name='ID')
     user = models.ForeignKey(User,null=True,blank=True,on_delete=models.CASCADE)
     autorizacion = models.CharField(max_length=100, null=True)
-    fecha = models.DateField(null=True)
+    fecha = models.CharField(max_length=100, null=True)
     monto = models.CharField(max_length=100, null=True)
     referencia = models.CharField(max_length=100, null=True)
     codigo = models.CharField(max_length=100, null=True)
