@@ -10,9 +10,7 @@ urlpatterns = [
     
     
     path('signup/post',UserRegistrationView.as_view()),
-    
-    
-    
+   
     path('login',LoginView.as_view()),
     path('logout',LogoutView.as_view()),
     path('refresh-token',UserToken.as_view()),

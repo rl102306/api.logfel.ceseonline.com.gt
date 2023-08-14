@@ -636,7 +636,7 @@ class Existe_Suscripcion_Usuario(APIView):
 class EBIExitosoView(Authentication,APIView):
     
     def post(self,request, *args, **kwargs):
-        '''        
+        
         def decrypt(ciphertext, key, iv):
             cipher = AES.new(key, AES.MODE_CBC, iv)
             decrypted = cipher.decrypt(ciphertext)
@@ -665,23 +665,23 @@ class EBIExitosoView(Authentication,APIView):
         d_authorization = ''.join(c for c in d_authorization if ord(c) >= 32 and ord(c) <= 126)
         d_audit = ''.join(c for c in d_audit if ord(c) >= 32 and ord(c) <= 126)
         d_amount = ''.join(c for c in d_amount if ord(c) >= 32 and ord(c) <= 126)
-        '''
+        
         data = {
-            "autorizacion": "1", #d_authorization,
-            "monto": "12",#d_amount,
-            "codigo": "00",#code,
-            "auditoria": "123",#d_audit,
-            "referencia": "43443",#d_reference,
-            "token": "434344"#token
+            "autorizacion": d_authorization,
+            "monto": d_amount,
+            "codigo": code,
+            "auditoria": d_audit,
+            "referencia": d_reference,
+            "token": token
         }
 
         data_ = {
-            "autorizacion": "1", #d_authorization,
-            "monto": "12",#d_amount,
-            "codigo": "00",#code,
-            "auditoria": "123",#d_audit,
-            "referencia": "43443",#d_reference,
-            "token": "434344",#token
+            "autorizacion": d_authorization,
+            "monto": d_amount,
+            "codigo": code,
+            "auditoria": d_audit,
+            "referencia": d_reference,
+            "token": token ,
             "user" : str(self.user)
         }
         
