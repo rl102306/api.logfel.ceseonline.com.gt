@@ -686,7 +686,18 @@ class EBIExitosoView(APIView):
             "user" : ""
         }
 
-        SubMensualDataRegistrationSerializer(data = data_).save()
+        
+        SubMensual_serializer = SubMensualDataRegistrationSerializer(data = data_)
+
+        
+        if SubMensual_serializer.is_valid():
+        
+            SubMensual_serializer.save()
+        else:
+            print("Di erro")
+
+
+        #SubMensualDataRegistrationSerializer(data = data_).save()
         
         encoded_data = urllib.parse.quote(json.dumps(data))
         url = f'https://logfel.ceseonline.com.gt/pex?data={encoded_data}'
