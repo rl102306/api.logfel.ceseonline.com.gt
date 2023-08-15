@@ -633,7 +633,7 @@ class Existe_Suscripcion_Usuario(APIView):
         else:
             return Response(Json_Suscripcion_Existe,status=400,content_type="application/json")
 
-class EBIExitosoView(Authentication,APIView):
+class EBIExitosoView(APIView):
     
     def post(self,request, *args, **kwargs):
         
@@ -665,7 +665,8 @@ class EBIExitosoView(Authentication,APIView):
         d_authorization = ''.join(c for c in d_authorization if ord(c) >= 32 and ord(c) <= 126)
         d_audit = ''.join(c for c in d_audit if ord(c) >= 32 and ord(c) <= 126)
         d_amount = ''.join(c for c in d_amount if ord(c) >= 32 and ord(c) <= 126)
-        
+        print("Si llego aca")
+
         data = {
             "autorizacion": d_authorization,
             "monto": d_amount,
@@ -684,14 +685,13 @@ class EBIExitosoView(Authentication,APIView):
             "token": token ,
             "user" : str(self.user)
         }
-        
+        print("LLego despues del data")
         SubMensualDataRegistrationSerializer(data = data_).save()
+        
         encoded_data = urllib.parse.quote(json.dumps(data))
         url = f'https://logfel.ceseonline.com.gt/pex?data={encoded_data}'
         webbrowser.open(url)
-
-        ('id','user','autorizacion','fecha','monto','referencia','codigo','auditoria')
-
+        print(url)
         return redirect(url)
 
 class EBIRechazoView(APIView): 
