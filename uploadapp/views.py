@@ -682,10 +682,10 @@ class EBIExitosoView(APIView):
             "codigo": code,
             "auditoria": d_audit,
             "referencia": d_reference,
-            "token": token ,
-            "user" : str(self.user)
+            "token": token,
+            "user" : ""
         }
-        print("LLego despues del data")
+
         SubMensualDataRegistrationSerializer(data = data_).save()
         
         encoded_data = urllib.parse.quote(json.dumps(data))
