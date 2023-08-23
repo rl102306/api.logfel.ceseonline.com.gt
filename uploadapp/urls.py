@@ -19,7 +19,8 @@ urlpatterns = [
     path('empresa',CompanyRegistrationView.as_view()),
     
     path('user/post',UserRegistrationView.as_view()),
-    path('guc/get',GUC.as_view()),
+    
+    # path('guc/get',GUC.as_view()),
     
     
     
