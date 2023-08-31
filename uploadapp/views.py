@@ -429,11 +429,10 @@ class UserSuscripcion:
         return BUSP
         
 class LogoutView(APIView):
-
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
             try:
-                token = request.GET.get('token')
-                token = Token.objects.filter(key = token).first()
+                token_ = request.GET.get('token')
+                token = Token.objects.filter(key = token_).first()
                 if token:
                     user = token.user
                     all_sessions = Session.objects.filter(expire_date__gte =datetime.datetime.now())
@@ -609,7 +608,7 @@ class PerfilEmpresaUsuario(APIView):
             Dict_Data_To_Json = json.dumps(Request_Data)
             Load_Json_Data = json.loads(Dict_Data_To_Json)
             Id_Usuario = Load_Json_Data['usuario']
-            Empresa_Existe = ProfileSeriaizer.Existe_Usuario_Empresa(Id_Usuario)
+            Empresa_Existe = ProfileSeriaizer.EM_Usuario_Empresa(Id_Usuario)
             Json_Empresa_Existe = {
                 'Existe' : Empresa_Existe
             }
@@ -691,7 +690,6 @@ class EBIExitosoView(APIView):
 
         
         if SubMensual_serializer.is_valid():
-        
             SubMensual_serializer.save()
         else:
             print("Di erro")
@@ -723,8 +721,11 @@ class EBIRechazoView(APIView):
             return Response(suscripcion_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     '''
 
-class SuscripcionRegistrationView(APIView): 
+class SuscripcionRegistrationView(APIView):
+
     def post(self,request, *args, **kwargs):
+        print("Si llego aca")
+        print(request.data)
         suscripcion_serializer = SuscripcionSerializer(data = request.data)
         if suscripcion_serializer.is_valid():
             suscripcion_serializer.save()
